@@ -4,7 +4,7 @@ using MovieAnalyzer.Services;
 namespace MovieAnalyzer.Controllers
 {
 	[ApiController]
-	[Route("[controller]s")]
+	[Route("award-nominees")]
 	public class AwardNomineeController : ControllerBase
 	{
 		private readonly AwardNomineeService service;
@@ -14,7 +14,7 @@ namespace MovieAnalyzer.Controllers
 			this.service = service;
 		}
 
-		[HttpGet("Intervals")]
+		[HttpGet("intervals")]
 		public async Task<IActionResult> GetIntervals()
 		{
 			var extremeIntervals = await service.GetExtremeIntervalsAsync();

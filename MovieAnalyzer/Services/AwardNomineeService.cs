@@ -3,7 +3,6 @@ using MovieAnalyzer.Repositories;
 
 namespace MovieAnalyzer.Services
 {
-	/// docker setup, readme, comments
 	public class AwardNomineeService
 	{
 		private readonly AwardNomineeRepository repository;
