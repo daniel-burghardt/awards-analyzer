@@ -4,8 +4,8 @@
 ## Running the app
 ### Using Docker
 #### To run the container:
-`docker build -t movie-analyzer .`
-`docker run -dp 3000:3000 movie-analyzer`
+1. `docker build -t movie-analyzer .`
+2. `docker run -dp 3000:3000 movie-analyzer`
 
 Access it at: http://localhost:3000/swagger/index.html
 
