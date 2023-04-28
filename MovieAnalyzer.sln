@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33530.505
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MovieAnalyzer.Tests", "MovieAnalyzer.Tests\MovieAnalyzer.Tests.csproj", "{E51B4FDB-C888-453C-B418-BF52DC204C15}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MovieAnalyzer", "MovieAnalyzer\MovieAnalyzer.csproj", "{FD473FB0-400F-48C4-A066-2BF4D4B327FF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E51B4FDB-C888-453C-B418-BF52DC204C15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E51B4FDB-C888-453C-B418-BF52DC204C15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E51B4FDB-C888-453C-B418-BF52DC204C15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E51B4FDB-C888-453C-B418-BF52DC204C15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD473FB0-400F-48C4-A066-2BF4D4B327FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD473FB0-400F-48C4-A066-2BF4D4B327FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD473FB0-400F-48C4-A066-2BF4D4B327FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD473FB0-400F-48C4-A066-2BF4D4B327FF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8EA8DF07-B380-4C44-8B9C-A54B2FAB2199}
+	EndGlobalSection
+EndGlobal
