@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TestFiles\movielist_v2.csv">
+    <None Update="TestFiles\movielist_v1.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="TestFiles\movielist_no_consec.csv">

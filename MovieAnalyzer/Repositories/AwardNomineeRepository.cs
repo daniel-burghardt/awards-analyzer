@@ -13,7 +13,7 @@ namespace MovieAnalyzer.Repositories
 			this.db = db;
 		}
 
-		public async Task<List<AwardNominee>> GetWinningNominees(int minWins = 0)
+		public async Task<List<string>> GetProducers(int minWins = 0)
 		{
 			var producers = await db.AwardNominees
 				.GroupBy(x => x.Producers)
@@ -21,9 +21,13 @@ namespace MovieAnalyzer.Repositories
 				.Select(x => x.Key)
 				.ToListAsync();
 
+			return producers;
+		}
+		
+		public async Task<List<AwardNominee>> GetNomineesForProducers(List<string> producers)
+		{
 			var awardNominees = await db.AwardNominees
 				.Where(x => producers.Contains(x.Producers))
-				.Where(x => x.Winner)
 				.ToListAsync();
 
 			return awardNominees;

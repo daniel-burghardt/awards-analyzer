@@ -59,7 +59,7 @@ namespace MovieAnalyzer.Tests
 		[Test]
 		public async Task GetExtremeIntervalsTest_V2()
 		{
-			var db = InitializeDatabase("TestFiles/movielist_v2.csv");
+			var db = InitializeDatabase("TestFiles/movielist_v1.csv");
 			var repository = new AwardNomineeRepository(db);
 			var service = new AwardNomineeService(repository);
 
@@ -69,24 +69,24 @@ namespace MovieAnalyzer.Tests
 				new ExtremeIntervalsEntryDto()
 				{
 					Producer = "A",
-					Interval = 2,
+					Interval = 1,
 					PreviousWin = 1990,
-					FollowingWin = 1992
+					FollowingWin = 1991
 				},
 				new ExtremeIntervalsEntryDto()
 				{
 					Producer = "C",
-					Interval = 2,
-					PreviousWin = 1995,
-					FollowingWin = 1997
+					Interval = 1,
+					PreviousWin = 1993,
+					FollowingWin = 1994
 				},
 			};
 			var expectedMaxNominees = new List<ExtremeIntervalsEntryDto>() {
 				new ExtremeIntervalsEntryDto()
 				{
 					Producer = "B",
-					Interval = 9,
-					PreviousWin = 1991,
+					Interval = 8,
+					PreviousWin = 1992,
 					FollowingWin = 2000
 				},
 			};

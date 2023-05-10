@@ -14,55 +14,73 @@ namespace MovieAnalyzer.Services
 
 		public async Task<ExtremeIntervalsDto> GetExtremeIntervalsAsync()
 		{
+			var producers = await repository.GetProducers(minWins: 2);
+			var awardNominees = await repository.GetNomineesForProducers(producers);
 			var result = new ExtremeIntervalsDto()
 			{
 				Min = new List<ExtremeIntervalsEntryDto>(),
 				Max = new List<ExtremeIntervalsEntryDto>(),
 			};
 
-			// Get winning award nominees with at least 2 wins
-			var awardNominees = await repository.GetWinningNominees(minWins: 2);
-			if (awardNominees.Count == 0)
-				return result;
-			if (awardNominees.Count < 2)
-				throw new Exception("Unexpected number of award nominees returned");
+			int minInterval = int.MaxValue;
+			int maxInterval = int.MinValue;
+			// Loop over producers with at least two total wins
+			foreach (var producer in producers)
+			{
+				// Loop over all but the last of the producer's nominations ordered by year
+				// comparing with the subsequent nomination
+				var producerNominations = awardNominees
+					.Where(x => x.Producers == producer)
+					.OrderBy(x => x.Year)
+					.ToArray();
 
-			// Map min and max winning intervals for each producer
-			var producersWithIntervals = awardNominees
-				.GroupBy(a => a.Producers)
-				.Select(g =>
+				for (var i = 0; i <= producerNominations.Count() - 2; i++)
 				{
-					var intervals = g.Zip(g.Skip(1), (a, b) => new ExtremeIntervalsEntryDto
+					// Check whether the producer has won two consecutive years
+					if (producerNominations[i].Winner && producerNominations[i + 1].Winner)
 					{
-						Producer = g.Key,
-						PreviousWin = a.Year,
-						FollowingWin = b.Year,
-						Interval = b.Year - a.Year,
-					}).OrderBy(i => i.Interval);
-					return new
-					{
-						Producers = g.Key,
-						MinInterval = intervals.First(),
-						MaxInterval = intervals.Last(),
-					};
-				});
+						var interval = producerNominations[i + 1].Year - producerNominations[i].Year;
+						if (interval >= maxInterval)
+						{
+							var entry = new ExtremeIntervalsEntryDto()
+							{
+								Producer = producer,
+								Interval = interval,
+								PreviousWin = producerNominations[i].Year,
+								FollowingWin = producerNominations[i + 1].Year
+							};
 
-			var maxIntervals = producersWithIntervals
-				.GroupBy(x => x.MaxInterval.Interval)
-				.OrderBy(x => x.Key)
-				.Last()
-				.Select(x => x.MaxInterval)
-				.ToList();
-			var minIntervals = producersWithIntervals
-				.GroupBy(x => x.MinInterval.Interval)
-				.OrderBy(x => x.Key)
-				.First()
-				.Select(x => x.MinInterval)
-				.ToList();
+							if (interval == maxInterval)
+								result.Max.Add(entry);
+							else
+							{
+								result.Max = new List<ExtremeIntervalsEntryDto> { entry };
+								maxInterval = interval;
+							}
+						}
 
-			result.Max = maxIntervals!;
-			result.Min = minIntervals!;
-			
+						if (interval <= minInterval)
+						{
+							var entry = new ExtremeIntervalsEntryDto()
+							{
+								Producer = producer,
+								Interval = interval,
+								PreviousWin = producerNominations[i].Year,
+								FollowingWin = producerNominations[i + 1].Year
+							};
+
+							if (interval == minInterval)
+								result.Min.Add(entry);
+							else
+							{
+								result.Min = new List<ExtremeIntervalsEntryDto> { entry };
+								minInterval = interval;
+							}
+						}
+					}
+				}
+			}
+
 			return result;
 		}
 	}
