@@ -13,8 +13,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MovieAnalyzerContext>(options => options.UseInMemoryDatabase("MovieAnalyzerDb"));
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddTransient<AwardNomineeRepository>();
-builder.Services.AddTransient<AwardNomineeService>();
+builder.Services.AddTransient<AwardNominationRepository>();
+builder.Services.AddTransient<AwardNominationService>();
 
 var app = builder.Build();
 

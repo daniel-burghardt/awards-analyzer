@@ -21,6 +21,7 @@
     <None Update="movielist.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <InternalsVisibleTo Include="MovieAnalyzer.Tests" />
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,9 @@
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MovieAnalyzer.DTOs;
 using MovieAnalyzer.Models;
-using MovieAnalyzer.Repositories;
-using MovieAnalyzer.Services;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace MovieAnalyzer.Tests
 {
@@ -25,124 +25,129 @@ namespace MovieAnalyzer.Tests
 		[Test]
 		public async Task GetExtremeIntervalsTest_OriginalFile()
 		{
-			var db = InitializeDatabase("TestFiles/movielist.csv");
-			var repository = new AwardNomineeRepository(db);
-			var service = new AwardNomineeService(repository);
+			await using var application = new MovieAnalyzerApplication();
 
-			var result = await service.GetExtremeIntervalsAsync();
-
-			var expectedMinNominees = new List<ExtremeIntervalsEntryDto>() {
-				new ExtremeIntervalsEntryDto()
-				{
-					Producer = "Bo Derek",
-					Interval = 6,
-					PreviousWin = 1984,
-					FollowingWin = 1990
+			var client = application.CreateClient();
+			var response = await client.GetAsync("/award-nominees/intervals");
+			var responseBody = await response.Content.ReadFromJsonAsync<ExtremeIntervalsDto>();
+			var expectedResponse = new ExtremeIntervalsDto
+			{
+				Min = new List<ExtremeIntervalsEntryDto>() {
+					new ExtremeIntervalsEntryDto()
+					{
+						Producer = "Joel Silver",
+						Interval = 1,
+						PreviousWin = 1990,
+						FollowingWin = 1991
+					},
 				},
+				Max = new List<ExtremeIntervalsEntryDto>() {
+					new ExtremeIntervalsEntryDto()
+					{
+						Producer = "Matthew Vaughn",
+						Interval = 13,
+						PreviousWin = 2002,
+						FollowingWin = 2015
+					},
+				}
 			};
-			var expectedMaxNominees = new List<ExtremeIntervalsEntryDto>() {
-				new ExtremeIntervalsEntryDto()
-				{
-					Producer = "Bo Derek",
-					Interval = 6,
-					PreviousWin = 1984,
-					FollowingWin = 1990
-				},
-			};
-
-			Assert.True(Util.AreEqualByJson(expectedMinNominees, result.Min));
-			Assert.True(Util.AreEqualByJson(expectedMaxNominees, result.Max));
-
-			db.Database.EnsureDeleted();
+			
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+			Assert.IsNotNull(responseBody);
+			Assert.True(Util.AreEqualByJson(responseBody, expectedResponse));
 		}
 
 		[Test]
 		public async Task GetExtremeIntervalsTest_V2()
 		{
-			var db = InitializeDatabase("TestFiles/movielist_v2.csv");
-			var repository = new AwardNomineeRepository(db);
-			var service = new AwardNomineeService(repository);
+			await using var application = new MovieAnalyzerApplication();
+			await LoadDbFromFile(application, "TestFiles/movielist_v2.csv");
 
-			var result = await service.GetExtremeIntervalsAsync();
+			var client = application.CreateClient();
+			var response = await client.GetAsync("/award-nominees/intervals");
+			var responseBody = await response.Content.ReadFromJsonAsync<ExtremeIntervalsDto>();
 
-			var expectedMinNominees = new List<ExtremeIntervalsEntryDto>() {
-				new ExtremeIntervalsEntryDto()
+			var expectedResponse = new ExtremeIntervalsDto
+			{
+				Min = new List<ExtremeIntervalsEntryDto>()
 				{
-					Producer = "A",
-					Interval = 2,
-					PreviousWin = 1990,
-					FollowingWin = 1992
+					new ExtremeIntervalsEntryDto()
+					{
+						Producer = "A",
+						Interval = 1,
+						PreviousWin = 1997,
+						FollowingWin = 1998
+					},
 				},
-				new ExtremeIntervalsEntryDto()
-				{
-					Producer = "C",
-					Interval = 2,
-					PreviousWin = 1995,
-					FollowingWin = 1997
-				},
-			};
-			var expectedMaxNominees = new List<ExtremeIntervalsEntryDto>() {
-				new ExtremeIntervalsEntryDto()
-				{
-					Producer = "B",
-					Interval = 9,
-					PreviousWin = 1991,
-					FollowingWin = 2000
-				},
+				Max = new List<ExtremeIntervalsEntryDto>() {
+					new ExtremeIntervalsEntryDto()
+					{
+						Producer = "B",
+						Interval = 7,
+						PreviousWin = 1991,
+						FollowingWin = 1998
+					},
+				}
 			};
 
-			Assert.True(Util.AreEqualByJson(expectedMinNominees, result.Min));
-			Assert.True(Util.AreEqualByJson(expectedMaxNominees, result.Max));
-
-			db.Database.EnsureDeleted();
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+			Assert.IsNotNull(responseBody);
+			Assert.True(Util.AreEqualByJson(responseBody, expectedResponse));
 		}
 
 		[Test]
 		public async Task GetExtremeIntervalsTest_EmptyFile()
 		{
-			var db = InitializeDatabase("TestFiles/movielist_empty.csv");
-			var repository = new AwardNomineeRepository(db);
-			var service = new AwardNomineeService(repository);
+			await using var application = new MovieAnalyzerApplication();
+			await LoadDbFromFile(application, "TestFiles/movielist_empty.csv");
 
-			var result = await service.GetExtremeIntervalsAsync();
+			var client = application.CreateClient();
+			var response = await client.GetAsync("/award-nominees/intervals");
+			var responseBody = await response.Content.ReadFromJsonAsync<ExtremeIntervalsDto>();
 
-			var expectedMinNominees = new List<ExtremeIntervalsEntryDto>();
-			var expectedMaxNominees = new List<ExtremeIntervalsEntryDto>();
+			var expectedResponse = new ExtremeIntervalsDto
+			{
+				Min = new List<ExtremeIntervalsEntryDto>(),
+				Max = new List<ExtremeIntervalsEntryDto>(),
+			};
 
-			Assert.True(Util.AreEqualByJson(expectedMinNominees, result.Min));
-			Assert.True(Util.AreEqualByJson(expectedMaxNominees, result.Max));
-
-			db.Database.EnsureDeleted();
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+			Assert.IsNotNull(responseBody);
+			Assert.True(Util.AreEqualByJson(responseBody, expectedResponse));
 		}
 
 		[Test]
 		public async Task GetExtremeIntervalsTest_NoConsecutiveWinners()
 		{
-			var db = InitializeDatabase("TestFiles/movielist_no_consec.csv");
-			var repository = new AwardNomineeRepository(db);
-			var service = new AwardNomineeService(repository);
+			await using var application = new MovieAnalyzerApplication();
+			await LoadDbFromFile(application, "TestFiles/movielist_no_consec.csv");
 
-			var result = await service.GetExtremeIntervalsAsync();
+			var client = application.CreateClient();
+			var response = await client.GetAsync("/award-nominees/intervals");
+			var responseBody = await response.Content.ReadFromJsonAsync<ExtremeIntervalsDto>();
 
-			var expectedMinNominees = new List<ExtremeIntervalsEntryDto>();
-			var expectedMaxNominees = new List<ExtremeIntervalsEntryDto>();
+			var expectedResponse = new ExtremeIntervalsDto
+			{
+				Min = new List<ExtremeIntervalsEntryDto>(),
+				Max = new List<ExtremeIntervalsEntryDto>(),
+			};
 
-			Assert.True(Util.AreEqualByJson(expectedMinNominees, result.Min));
-			Assert.True(Util.AreEqualByJson(expectedMaxNominees, result.Max));
-
-			db.Database.EnsureDeleted();
+			Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+			Assert.IsNotNull(responseBody);
+			Assert.True(Util.AreEqualByJson(responseBody, expectedResponse));
 		}
 
-		private MovieAnalyzerContext InitializeDatabase(string filename)
+		private async Task LoadDbFromFile(MovieAnalyzerApplication application, string filename)
 		{
-			// Setup database
-			var options = new DbContextOptionsBuilder<MovieAnalyzerContext>()
-				.UseInMemoryDatabase(databaseName: "TestDatabase")
-				.Options;
-			var db = new MovieAnalyzerContext(options);
-			DbSeeder.Initialize(db, mapper, filename);
-
-			return db;
+			using (var scope = application.Services.CreateScope())
+			{
+				var provider = scope.ServiceProvider;
+				using (var dbContext = provider.GetRequiredService<MovieAnalyzerContext>())
+				{
+					await dbContext.Database.EnsureDeletedAsync();
+					DbSeeder.Initialize(dbContext, mapper, filename);
+				}
+			}
 		}
 	}
 }

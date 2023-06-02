@@ -5,11 +5,11 @@ namespace MovieAnalyzer.Controllers
 {
 	[ApiController]
 	[Route("award-nominees")]
-	public class AwardNomineeController : ControllerBase
+	public class AwardNominationController : ControllerBase
 	{
-		private readonly AwardNomineeService service;
+		private readonly AwardNominationService service;
 
-		public AwardNomineeController(AwardNomineeService service)
+		public AwardNominationController(AwardNominationService service)
 		{
 			this.service = service;
 		}

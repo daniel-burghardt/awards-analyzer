@@ -8,7 +8,8 @@ namespace MovieAnalyzer
 	{
 		public AutoMapperProfile()
 		{
-			CreateMap<AwardNomineeCsvEntry, AwardNominee>();
+			CreateMap<AwardNomineeCsvEntry, AwardNomination>()
+				.ForMember(x => x.HasProducers, x => x.Ignore());
 		}
 	}
 }

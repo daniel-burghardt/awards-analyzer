@@ -4,6 +4,7 @@ using System.Globalization;
 using MovieAnalyzer.DTOs;
 using CsvHelper.Configuration;
 using AutoMapper;
+using System.Text.RegularExpressions;
 
 namespace MovieAnalyzer
 {
@@ -17,11 +18,29 @@ namespace MovieAnalyzer
 			using (var reader = new StreamReader(filename))
 			using (var csv = new CsvReader(reader, config))
 			{
-				var records = csv.GetRecords<AwardNomineeCsvEntry>();
-				var awardNominees = mapper.Map<List<AwardNominee>>(records);
-				db.AwardNominees.AddRange(awardNominees);
-			}
+				var records = csv.GetRecords<AwardNomineeCsvEntry>().ToList();
+				var uniqueProducers = records.Select(x => x.Producers)
+					.SelectMany(x => Regex.Split(x, @",\s|\sand\s"))
+					.Distinct()
+					.Select(x => new Producer { Name = x })
+					.ToList();
+				var awardNominations = records.Select(record =>
+				{
+					var awardNomination = mapper.Map<AwardNomination>(record);
+					awardNomination.HasProducers = uniqueProducers
+						.Where(p => record.Producers.Contains(p.Name))
+						.Select(p => new ProducerHasNomination
+						{
+							Producer = p
+						}).ToList();
 
+					return awardNomination;
+				}).ToList();
+
+				db.Producers.AddRange(uniqueProducers);
+				db.AwardNominations.AddRange(awardNominations);
+			}
+			
 			db.SaveChanges();
 		}
 	}

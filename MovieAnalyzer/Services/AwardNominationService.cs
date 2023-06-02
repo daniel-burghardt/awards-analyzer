@@ -3,11 +3,11 @@ using MovieAnalyzer.Repositories;
 
 namespace MovieAnalyzer.Services
 {
-	public class AwardNomineeService
+	public class AwardNominationService
 	{
-		private readonly AwardNomineeRepository repository;
+		private readonly AwardNominationRepository repository;
 
-		public AwardNomineeService(AwardNomineeRepository repository)
+		public AwardNominationService(AwardNominationRepository repository)
 		{
 			this.repository = repository;
 		}
@@ -20,24 +20,27 @@ namespace MovieAnalyzer.Services
 				Max = new List<ExtremeIntervalsEntryDto>(),
 			};
 
-			// Get winning award nominees with at least 2 wins
-			var awardNominees = await repository.GetWinningNominees(minWins: 2);
-			if (awardNominees.Count == 0)
+			// Get winning award nominees
+			var winningNominations = await repository.GetWinningNominations();
+			
+			// Get producers with multiple wins
+			var multipleWinning = winningNominations
+				.OrderBy(x => x.AwardNomination.Year)
+				.GroupBy(a => a.ProducerId)
+				.Where(x => x.Count() >= 2).ToList();
+			if (multipleWinning.Count == 0)
 				return result;
-			if (awardNominees.Count < 2)
-				throw new Exception("Unexpected number of award nominees returned");
 
 			// Map min and max winning intervals for each producer
-			var producersWithIntervals = awardNominees
-				.GroupBy(a => a.Producers)
+			var producersWithIntervals = multipleWinning
 				.Select(g =>
 				{
 					var intervals = g.Zip(g.Skip(1), (a, b) => new ExtremeIntervalsEntryDto
 					{
-						Producer = g.Key,
-						PreviousWin = a.Year,
-						FollowingWin = b.Year,
-						Interval = b.Year - a.Year,
+						Producer = a.Producer.Name,
+						PreviousWin = a.AwardNomination.Year,
+						FollowingWin = b.AwardNomination.Year,
+						Interval = b.AwardNomination.Year - a.AwardNomination.Year,
 					}).OrderBy(i => i.Interval);
 					return new
 					{
@@ -62,7 +65,7 @@ namespace MovieAnalyzer.Services
 
 			result.Max = maxIntervals!;
 			result.Min = minIntervals!;
-			
+
 			return result;
 		}
 	}
